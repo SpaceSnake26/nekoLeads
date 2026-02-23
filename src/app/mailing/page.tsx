@@ -25,6 +25,7 @@ export default function MailingPage() {
     const [loading, setLoading] = useState(true);
     const [activeTemplate, setActiveTemplate] = useState(EMAIL_TEMPLATES[0]);
     const [previewLead, setPreviewLead] = useState<Lead | null>(null);
+    const [copyBodySuccess, setCopyBodySuccess] = useState(false);
 
     useEffect(() => {
         fetchLeads();
@@ -233,11 +234,25 @@ export default function MailingPage() {
                                 <button
                                     onClick={() => {
                                         navigator.clipboard.writeText(getInterpolated(previewLead).body);
-                                        alert('Email body copied!');
+                                        setCopyBodySuccess(true);
+                                        setTimeout(() => setCopyBodySuccess(false), 2000);
                                     }}
-                                    className="flex-1 bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95"
+                                    className={cn(
+                                        "flex-1 py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95",
+                                        copyBodySuccess
+                                            ? "bg-slate-800 dark:bg-slate-950 text-emerald-400"
+                                            : "bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white"
+                                    )}
                                 >
-                                    <Copy size={14} /> Copy Body
+                                    {copyBodySuccess ? (
+                                        <>
+                                            <CheckSquare size={14} /> Copied
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy size={14} /> Copy Body
+                                        </>
+                                    )}
                                 </button>
                                 <Link
                                     href={`mailto:${previewLead.email || ''}?subject=${encodeURIComponent(getInterpolated(previewLead).subject)}&body=${encodeURIComponent(getInterpolated(previewLead).body)}`}
