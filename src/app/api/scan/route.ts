@@ -55,7 +55,7 @@ export async function POST(req: Request) {
                 }, { onConflict: 'google_place_id' })
                 .select();
 
-            if (error) console.error('Supabase upsert error:', error);
+            if (error) console.error('Supabase upsert error:', JSON.stringify(error, null, 2));
             results.push(data?.[0] || lead);
         }
 

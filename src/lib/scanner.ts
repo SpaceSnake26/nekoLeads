@@ -66,7 +66,8 @@ export async function scanWebsite(url: string): Promise<ScanResult> {
     }
 }
 
-function detectWebshop($: cheerio.CheerioAPI, html: string): boolean {
+function detectWebshop($: cheerio.CheerioAPI, html: any): boolean {
+    if (typeof html !== 'string') return false;
     const shopKeywords = ['warenkorb', 'cart', 'panier', 'carrello', 'shop', 'kasse', 'checkout'];
     const hasCartIcon = $('.fa-shopping-cart, .cart-icon, [class*="cart"]').length > 0;
     const hasKeywords = shopKeywords.some(kw => html.toLowerCase().includes(kw));
