@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { findPharmacies } from '@/lib/google-maps';
+import { findPharmacies, findPharmaciesGlobal } from '@/lib/google-maps';
+import { searchLocalCh } from '@/lib/local-ch';
 import { scanWebsite } from '@/lib/scanner';
 import { getSupabase } from '@/lib/supabase';
 
@@ -9,14 +10,24 @@ export async function POST(req: Request) {
 
     try {
         const { city } = await req.json();
-        if (!city) return NextResponse.json({ error: 'City is required' }, { status: 400 });
+        const isGlobal = !city || city.toLowerCase() === 'schweiz' || city.toLowerCase() === 'switzerland';
 
-        const pharmacyLeads = await findPharmacies(city);
+        console.log(`[Scanner] Starting scan. Mode: ${isGlobal ? 'Global' : `City: ${city}`}`);
+
+        // Get leads from both sources
+        const [gmapsLeads, localChLeads] = await Promise.all([
+            isGlobal ? findPharmaciesGlobal() : findPharmacies(city),
+            searchLocalCh(isGlobal ? 'Apotheke' : `Apotheke in ${city}`)
+        ]);
+
+        const combinedLeads = [
+            ...gmapsLeads.map(l => ({ ...l, source: 'GMaps' as const })),
+            ...localChLeads.map(l => ({ ...l, source: 'local.ch' as const, place_id: `localch_${l.name}_${l.city}` }))
+        ];
 
         const results = [];
-        for (const lead of pharmacyLeads) {
-            // 1. Check for existing lead to handle deduplication
-            // Dedupe strategy: Google Place ID -> Website URL -> Name + City
+        for (const lead of combinedLeads) {
+            // Dedupe: Source-specific unique ID or Website
             const { data: existingLead } = await supabase
                 .from('leads')
                 .select('id')
@@ -40,13 +51,14 @@ export async function POST(req: Request) {
                 website_url: lead.website,
                 phone: lead.phone,
                 address: lead.address,
-                city: city,
+                city: lead.city || city || 'Switzerland',
                 google_place_id: lead.place_id,
-                latitude: lead.latitude,
-                longitude: lead.longitude,
+                source: lead.source,
+                latitude: (lead as any).latitude,
+                longitude: (lead as any).longitude,
                 overall_score: scanResult.overall_score,
                 has_webshop: scanResult.has_webshop,
-                has_ai_chatbot: false, // Baseline detection deferred or manually set
+                has_ai_chatbot: false,
                 owner: scanResult.owner,
                 category_scores: scanResult.category_scores,
                 last_scanned: new Date().toISOString(),

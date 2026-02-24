@@ -16,6 +16,7 @@ export interface Lead {
     tags: string[];
     status: LeadStatus;
     google_place_id?: string | null;
+    source?: 'GMaps' | 'local.ch';
     overall_score?: number | null;
     category_scores?: any | null;
     created_at: string;

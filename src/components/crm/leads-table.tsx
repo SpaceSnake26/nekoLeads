@@ -51,6 +51,7 @@ export function LeadsTable({ leads, loading, onViewLead }: LeadsTableProps) {
                     <thead>
                         <tr className="bg-slate-50 dark:bg-slate-800/10 border-b border-slate-200 dark:border-slate-800">
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Pharmacy & Location</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Source</th>
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Contact Info</th>
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Score</th>
@@ -74,6 +75,16 @@ export function LeadsTable({ leads, loading, onViewLead }: LeadsTableProps) {
                                             <MapPin size={12} className="mr-1 text-slate-400" />
                                             {lead.city}
                                         </div>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-5">
+                                    <div className={cn(
+                                        "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border",
+                                        lead.source === 'local.ch'
+                                            ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800"
+                                            : "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
+                                    )}>
+                                        {lead.source === 'local.ch' ? 'local.ch' : 'Google Maps'}
                                     </div>
                                 </td>
                                 <td className="px-6 py-5">

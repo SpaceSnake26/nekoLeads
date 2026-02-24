@@ -34,19 +34,17 @@ export default function Dashboard() {
     }
   };
 
-  const handleScan = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!city) return;
+  const handleScan = async () => {
     setScanning(true);
     try {
       await fetch('/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ city })
+        body: JSON.stringify({ city: '_global' })
       });
       fetchAnalytics();
     } catch (err) {
-      console.error('Scan error:', err);
+      console.error('Global Scan error:', err);
     } finally {
       setScanning(false);
     }
@@ -65,26 +63,25 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <form onSubmit={handleScan} className="flex items-center gap-2 group">
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-500 transition-colors" size={18} />
-            <input
-              type="text"
-              placeholder="Scan new city..."
-              className="pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all w-60 shadow-sm"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
-          </div>
+        <div className="flex items-center gap-3">
           <button
-            type="submit"
+            onClick={handleScan}
             disabled={scanning}
-            className="bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center gap-2"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-3.5 px-8 rounded-2xl text-sm transition-all shadow-xl shadow-purple-500/20 active:scale-95 disabled:opacity-50 flex items-center gap-2 group"
           >
-            {scanning ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            Scan
+            {scanning ? (
+              <RefreshCw className="w-5 h-5 animate-spin" />
+            ) : (
+              <TrendingUp className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            )}
+            {scanning ? 'Scanning All Switzerland...' : 'Start Global Swiss Scan'}
           </button>
-        </form>
+          {scanning && (
+            <span className="text-xs font-bold text-purple-500 animate-pulse uppercase tracking-widest">
+              Live: Data collection in progress
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Analytics Grid */}
