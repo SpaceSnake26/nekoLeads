@@ -15,36 +15,23 @@ export interface LocalChLead {
 }
 
 export async function searchLocalCh(query: string = 'Apotheke'): Promise<LocalChLead[]> {
-    console.log(`[Local.ch] Searching for "${query}" across Switzerland...`);
+    console.log(`[Local.ch] Fetching from dummy API for "${query}"...`);
 
-    // Placeholder: actual API call would go here
-    // const apiKey = process.env.LOCAL_CH_API_KEY;
+    try {
+        // In 2 working days, change this URL to the real local.ch API
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/dummy/local-ch?query=${encodeURIComponent(query)}`);
+        const data = await response.json();
 
-    // Mocking 3 results for demonstration
-    return [
-        {
-            name: 'Sun Store Apotheke',
-            website: 'https://www.sunstore.ch',
-            phone: '+41 58 878 50 00',
-            address: 'Route des Falaises 7',
-            city: 'Neuchâtel',
-            source: 'local.ch'
-        },
-        {
-            name: 'Amavita Apotheke',
-            website: 'https://www.amavita.ch',
-            phone: '+41 58 878 20 00',
-            address: 'Untere Bahnhofstrasse 1',
-            city: 'Rapperswil',
-            source: 'local.ch'
-        },
-        {
-            name: 'Apotheke am Bahnhof',
-            website: 'https://apotheke-am-bahnhof.ch',
-            phone: '+41 44 123 45 67',
-            address: 'Bahnhofsplatz 1',
-            city: 'Zürich',
-            source: 'local.ch'
+        if (data.status === 'success' && Array.isArray(data.results)) {
+            return data.results.map((r: any) => ({
+                ...r,
+                source: 'local.ch'
+            }));
         }
-    ];
+        return [];
+    } catch (error) {
+        console.error('[Local.ch] Dummy API fetch failed:', error);
+        return [];
+    }
 }
