@@ -21,7 +21,7 @@ export async function scanWebsite(url: string): Promise<ScanResult> {
 
     try {
         const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
-        const response = await axios.get(formattedUrl, { timeout: 10000, headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const response = await axios.get(formattedUrl, { timeout: 4000, headers: { 'User-Agent': 'Mozilla/5.0' } });
         const html = response.data;
         const $ = cheerio.load(html);
 

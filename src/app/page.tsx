@@ -18,6 +18,7 @@ import Link from 'next/link';
 export default function Dashboard() {
   const [city, setCity] = useState('');
   const [scanning, setScanning] = useState(false);
+  const [scanner, setScanner] = useState('both');
   const [analytics, setAnalytics] = useState<any>(null);
 
   useEffect(() => {
@@ -40,7 +41,7 @@ export default function Dashboard() {
       await fetch('/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ city: '_global' })
+        body: JSON.stringify({ city: '_global', scanners: scanner })
       });
       fetchAnalytics();
     } catch (err) {
@@ -64,6 +65,23 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center gap-3">
+          <select
+            value={scanner}
+            onChange={(e) => setScanner(e.target.value)}
+            disabled={scanning}
+            className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 px-4 rounded-xl text-sm focus:outline-none focus:border-purple-500 transition-colors disabled:opacity-50 appearance-none pr-10 cursor-pointer"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundPosition: 'right 0.5rem center',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '1.5em 1.5em'
+            }}
+          >
+            <option value="both">Both (GMaps & search.ch)</option>
+            <option value="gmaps">Google Maps Only</option>
+            <option value="localch">search.ch Only</option>
+          </select>
+
           <button
             onClick={handleScan}
             disabled={scanning}
@@ -77,7 +95,7 @@ export default function Dashboard() {
             {scanning ? 'Scanning All Switzerland...' : 'Start Global Swiss Scan'}
           </button>
           {scanning && (
-            <span className="text-xs font-bold text-purple-500 animate-pulse uppercase tracking-widest">
+            <span className="text-xs font-bold text-purple-500 animate-pulse uppercase tracking-widest hidden sm:inline-block">
               Live: Data collection in progress
             </span>
           )}
